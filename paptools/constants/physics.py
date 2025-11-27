@@ -12,13 +12,13 @@ G = Number(6.67430e-11, 1.5e-15, symbol="G", unit_str="m**3/(kg*s**2)")
 h = Number(6.62607015e-34, None, symbol="h", unit_str="J*s")
 # Planck constant (exact)
 
-hbar = Number(1.054571817e-34, None, symbol="\\hbar", unit_str="J*s")
+hbar = Number(1.054571817e-34, None, symbol="\\hbar ", unit_str="J*s")
 # Reduced Planck constant ℏ (exact because h is exact)
 
 mu0 = Number(4e-7 * np.pi, None, symbol="\\mu_0", unit_str="N/A**2")
 # Vacuum permeability μ₀ (defined exactly)
 
-epsilon0 = Number(8.8541878128e-12, 1.3e-21, symbol="\\varepsilon_0", unit_str="F/m")
+epsilon0 = Number(8.8541878128e-12, 1.3e-21, symbol="\\varepsilon_0 ", unit_str="F/m")
 # Vacuum permittivity ε₀
 
 k_B = Number(1.380649e-23, None, symbol="k_B", unit_str="J/K")
@@ -30,7 +30,7 @@ N_A = Number(6.02214076e23, None, symbol="N_A", unit_str="1/mol")
 R = Number(8.314462618, None, symbol="R", unit_str="J/(mol*K)")
 # Gas constant (derived from exact constants: exact)
 
-sigma = Number(5.670374419e-8, None, symbol="\\sigma", unit_str="W/(m**2*K**4)")
+sigma = Number(5.670374419e-8, None, symbol="\\sigma ", unit_str="W/(m**2*K**4)")
 # Stefan–Boltzmann constant σ (derived from exact constants: exact)
 
 mu_B = Number(9.2740100783e-24, 2.8e-33, symbol="\\mu_B", unit_str="J/T")
@@ -39,7 +39,7 @@ mu_B = Number(9.2740100783e-24, 2.8e-33, symbol="\\mu_B", unit_str="J/T")
 mu_N = Number(5.0507837461e-27, 1.5e-36, symbol="\\mu_N", unit_str="J/T")
 # Nuclear magneton μ_N
 
-alpha = Number(7.2973525693e-3, 1.1e-12, symbol="\\alpha")
+alpha = Number(7.2973525693e-3, 1.1e-12, symbol="\\alpha ")
 # Fine-structure constant α (dimensionless)
 
 e_charge = Number(1.602176634e-19, None, symbol="e", unit_str="C")
