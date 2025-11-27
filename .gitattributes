@@ -1,0 +1,25 @@
+# Ensure all text files use LF line endings
+* text=auto eol=lf
+
+# Normalize Python files
+*.py text
+
+# Jupyter notebooks should not try to diff cell output
+*.ipynb linguist-generated=true
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+
+# Do not treat data files as binary
+*.csv text
+*.json text
+*.yaml text
+*.yml text
+
+# Keep CRLF on Windows scripts if needed (rare)
+*.bat text eol=crlf

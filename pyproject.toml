@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paptools"
+version = "0.1.0"
+description = "Tools for plotting, fitting and data handling"
+authors = [
+    { name="Your Name", email="jonas.mueller.wpk@proton.me" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "sympy",
+    "unyt",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/jmueller209/paptools.git"
