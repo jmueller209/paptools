@@ -16,3 +16,6 @@ from .constants.math import *
 
 # Public constants (physical constants API)
 from .constants.physics import *
+
+# Public statistics functions
+from .statistics.tests import *

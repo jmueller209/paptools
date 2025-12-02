@@ -11,36 +11,35 @@ from ..validators.input import _is_value, _is_error, _is_unit, _is_unit_str, _is
 
 
 class Array(Number):
-    def __init__(self, value_array, error_array=None, symbol="x", unit_str=None, allow_complex=False) -> None:
-        super().__init__(value_array, error_array, symbol, unit_str, allow_complex)
+    def __init__(self, value_array, error_array=None, symbol="x", unit=None, allow_complex=False) -> None:
+        super().__init__(value_array, error_array, symbol, unit, allow_complex)
 
     def round(self) -> None:
         if self._error is None:
             warnings.warn("Error is None, cannot round value and error.")
             return
-        self.rounded = True
+        
+        rounded_values = []
+        rounded_errors = []
 
         for i in range(len(self)):
             #extract float values from unyt quantities for rounding
-            if isinstance(self._value[i], unyt_quantity):
-                value_float = self._value[i].value
-            else:
-                value_float = self._value[i]
-            if isinstance(self._error[i], unyt_quantity):
-                error_float = self._error[i].value
-            else:
-                error_float = self._error[i]
+            value_float = self._value[i].value
+            error_float = self._error[i].value
+
   
             rounded_value, rounded_error = self._round_value_and_error(value_float, error_float)
-            #reapply units if necessary
-            if isinstance(self._value, unyt_quantity):
-                self._value[i] = rounded_value * self._value.units
-            else:
-                self._value[i] = rounded_value
-            if isinstance(self._error, unyt_quantity):
-                self._error[i] = rounded_error * self._error.units
-            else:
-                self._error[i] = rounded_error
+
+            rounded_values.append(rounded_value)
+            rounded_errors.append(rounded_error)
+
+        rounded_values = unyt_array(rounded_values, self._value.units)
+        rounded_errors = unyt_array(rounded_errors, self._error.units)
+        obj = self.copy()
+        obj._value = rounded_values
+        obj._error = rounded_errors
+        obj.rounded = True
+        return obj
 
     def get_unit(self):
         return self._value[0].units
@@ -63,7 +62,7 @@ class Array(Number):
             return True, None
         elif is_err_arr:
             if np.asarray(error).shape != np.asarray(value).shape:
-                return False, "Error array must have the same shape as value array."
+                return False, "Error array must have the same length as value array."
             return True, None
         return False, msg_err_arr
         
