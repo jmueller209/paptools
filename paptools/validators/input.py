@@ -53,6 +53,12 @@ def _is_error_array(error_array):
     if np.iscomplexobj(arr):
         return False, "Error array must not contain complex numbers."
 
+    if arr.ndim != 1:
+        return False, "Error array must be a 1-D array of numbers (no nested arrays)."
+    
+    if arr.size == 0:
+        return False, "Error array must contain at least one element."
+
     if np.any(arr <= 0):
         return False, "Error array must only contain positive values or be None."
 
@@ -105,6 +111,12 @@ def _is_value_array(value_array, allow_complex: bool = False):
 
     if not np.issubdtype(arr.dtype, np.number):
         return False, f"Value array must contain only numeric values, but detected {arr.dtype}."
+    
+    if arr.ndim != 1:
+        return False, "Value array must be a 1-D array of numbers (no nested arrays)."
+    
+    if arr.size == 0:
+        return False, "Value array must contain at least one element."
 
     if not allow_complex and np.iscomplexobj(arr):
         return False, "Value array must not contain complex numbers."

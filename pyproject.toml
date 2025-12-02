@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "paptools"
-version = "0.1.1"
+version = "0.1.2"
 description = "A python wrapper combining functionality of numpy, sympy, unyt, and matplotlib, featuring automatic symbolic and numeric error propagation, unit handling and conversion, statistical functionality and more.Tools for plotting, fitting and data handling"
 authors = [
     { name="Jonas Mueller", email="jonas.mueller.wpk@proton.me" }

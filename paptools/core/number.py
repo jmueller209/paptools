@@ -3,16 +3,19 @@ import warnings
 import math
 import sympy as sp
 import numpy as np
+import copy
+from typing import Self
 from unyt import unyt_quantity, unyt_array, Unit, dimensionless
 from ..validators.input import _is_value, _is_error, _is_unit, _is_unit_str, _is_symbol, _is_value_array, _is_boolean, _is_error_array
 from ..debugging import debug_print, dump_object
 
+
 class Number():
 
-    def __init__(self, value, error=None, symbol="x", unit_str=None, allow_complex=False) -> None:
+    def __init__(self, value, error=None, symbol="x", unit=None, allow_complex=False) -> None:
         is_val, msg_val = self._check_initial_value_input(value, allow_complex)
         is_err, msg_err = self._check_initial_error_input(error, value)
-        is_unit_str, msg_unit_str = self._check_initial_unit_str_input(unit_str)
+        is_unit_str, msg_unit_str = self._check_initial_unit_str_input(unit)
         is_sym, msg_sym = self._check_initial_symbol_input(symbol)
         is_bool, msg_bool = self._check_initial_allow_complex_input(allow_complex)
 
@@ -31,8 +34,8 @@ class Number():
                 error_msgs.append(msg_bool)
             raise ValueError(" ".join(error_msgs))
         
-        self._set_initial_value(value, unit_str)
-        self._set_initial_error(error, unit_str)
+        self._set_initial_value(value, unit)
+        self._set_initial_error(error, unit)
 
         self._allow_complex = allow_complex
         self._dependencies = [self]
@@ -42,20 +45,22 @@ class Number():
     def print_info(self) -> None:
         print(f"Value: {self._value}, Error: {self._error}, Unit: '{self._unit}', Symbol: {self._expr}, Error Symbol: {self._err_expr}") 
     
-    def convert_to_unit(self, unit) -> None:
+    def convert_unit_to(self, unit) -> None:
         try:
             new_value = self._value.to(unit)
             new_error = self._error.to(unit) if self._error is not None else None
-            self._value = new_value
-            self._error = new_error
+            obj = self.copy()
+            obj._value = new_value
+            obj._error = new_error
+            return obj
         except Exception as e:
-            warnings.warn(f"Could not convert to unit {unit}: {e}")
+            raise ValueError(f"Could not convert to unit '{unit}': {e}")
     
     def round(self) -> None:
         if self._error is None:
             warnings.warn("Error is None, cannot round value and error.")
             return
-        self.rounded = True
+        
         #extract float values from unyt quantities for rounding
         if isinstance(self._value, unyt_quantity):
             value_float = self._value.value
@@ -67,15 +72,22 @@ class Number():
             error_float = self._error
             
         rounded_value, rounded_error = self._round_value_and_error(value_float, error_float)
+
         #reapply units if necessary
         if isinstance(self._value, unyt_quantity):
-            self._value = rounded_value * self._value.units
+            rounded_value = rounded_value * self._value.units
         else:
-            self._value = rounded_value
+            rounded_value = rounded_value
         if isinstance(self._error, unyt_quantity):
-            self._error = rounded_error * self._error.units
+            rounded_error = rounded_error * self._error.units
         else:
-            self._error = rounded_error
+            rounded_error = rounded_error
+
+        obj = self.copy()
+        obj._value = rounded_value
+        obj._error = rounded_error
+        obj.rounded = True
+        return obj
 
     def get_expr(self) -> sp.Symbol:
         return self._expr
@@ -88,10 +100,40 @@ class Number():
 
     def get_unit(self):
         return self._value.units
+    
+    def set_symbol(self, symbol : str) -> Self:
+        is_sym, msg_sym = self._check_initial_symbol_input(symbol)
+        if not is_sym:
+            raise ValueError(msg_sym)
+        obj = self.copy()
+        obj._set_symbol(symbol)
+        return obj
+        
+    def copy(self) -> Self:
+        cls = self.__class__
+        obj = cls.__new__(cls)   # create uninitialized instance
 
-    def _set_symbol(self, symbol_str) -> None:
-        self._expr = sp.Symbol(symbol_str, real=not self._allow_complex)
-        self._err_expr = sp.Symbol("\\Delta{" + symbol_str + "}", real=True, positive=True)
+        # SAFE COPIES:
+
+        # _value and _error may be unyt_quantity or unyt_array → both are mutable
+        obj._value = copy.deepcopy(self._value)
+        obj._error = copy.deepcopy(self._error)
+
+        # SymPy expressions are immutable → shallow assignment is safe
+        obj._expr = self._expr
+        obj._err_expr = self._err_expr
+
+        # dependencies list must be copied (shallow ok because it contains Number objects)
+        obj._dependencies = list(self._dependencies)
+
+        obj._allow_complex = self._allow_complex
+        obj.rounded = self.rounded
+
+        return obj
+
+    def _set_symbol(self, symbol : str) -> None:
+        self._expr = sp.Symbol(symbol, real=not self._allow_complex)
+        self._err_expr = sp.Symbol("\\Delta{" + symbol + "}", real=True, positive=True)
 
     def _build(self, expr, vars) -> 'Number':
         from .array import Array
@@ -138,6 +180,12 @@ class Number():
             if self._is_unyt_array(value) and self._is_unyt_quantity(error):
                 # convert quantity to array with same shape as value
                 error = unyt_array(np.full(value.shape, error.value), error.units)
+            elif self._is_unyt_array(value) and self._is_unyt_array(error) and error.shape != value.shape and error.shape == (1,):
+                # broadcast error to value shape
+                error = unyt_array(np.full(value.shape, error.value[0]), error.units)
+            if error.units != value.units:
+                # convert error to value's unit
+                error = error.to(value.units)
 
         # check result for validity
         if error is None:
@@ -148,13 +196,14 @@ class Number():
                 raise TypeError(f"After Calculation the value and error types do not match. Type of value is {type(value)} and type of error is {type(error)}. This should not happen. Please consult the developer.")
             if self._is_unyt_array(value) and self._is_unyt_array(error):
                 if value.shape != error.shape:
-                    raise ValueError(f"After Calculation the value's shape is {value.shape} and the error's shape is {error.shape}. They should be the same. Please consult the developer.")
-
+                    raise ValueError(f"After Calculation the value's shape is {value.shape} and the error's shape is {error.shape}. They should be the same. Please consult the developer. value: {value}, error: {error}")
+            if error.units != value.units:
+                raise ValueError(f"After Calculation the value's unit is {value.units} and the error's unit is {error.units}. They should be the same. Please consult the developer. value: {value}, error: {error}")
 
         if self._is_unyt_quantity(value):
             new_obj = Number(0, None)
         elif self._is_unyt_array(value):
-            new_obj = Array(0, None)
+            new_obj = Array([0], None)
         else:
             raise TypeError("Resulting value is neither unyt_quantity nor unyt_array. Please Ask Jonas for help.")
         
@@ -270,10 +319,14 @@ class Number():
                 r"$"
             )
 
-
     def __str__(self) -> str:
-        error_str = f" ± {self._error}" if self._error is not None else ""
-        return f"{self._value}{error_str}"
+        unit = "" if self.is_dimensionless() else self.get_unit()
+        if self._error is not None:
+            error_str = f" ± {self._error.value} "
+        else:
+            error_str = ""
+        return f"{self._value.value}{error_str} {unit}"
+
 
     def __add__(self, other) -> 'Number':
         if isinstance(other, Number):
