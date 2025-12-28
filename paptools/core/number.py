@@ -161,7 +161,7 @@ class Number():
         value = value_func(*value_dict.values())
         error = error_func(*value_dict.values(), *error_dict.values())
         # check if any of the errors <= 0, if so set error to None
-        if error is not None and np.any(error < 0):
+        if error is not None and np.any(error <= 0):
             warnings.warn(f"Computed error is non-positive (error={error}), setting error to None.")
             error = None
 
@@ -174,6 +174,7 @@ class Number():
 
         # convert error back into unyt object if unit has been lost due to sympy calculations and reshape if necessary
         if error is not None:
+            print(f"Error before conversion: {error}")
             if not isinstance(error, (unyt_quantity, unyt_array)):
                 error = error * dimensionless
             # Make sure the error has the same shape as the value
