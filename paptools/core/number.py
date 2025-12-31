@@ -107,6 +107,7 @@ class Number():
             raise ValueError(msg_sym)
         obj = self.copy()
         obj._set_symbol(symbol)
+        obj._dependencies = [obj]
         return obj
         
     def copy(self) -> Self:
@@ -142,6 +143,7 @@ class Number():
         for var in vars:
             dependencies.extend(var._dependencies)
         # remove duplicates
+        print(f"Dependencies before removing duplicates: {dependencies}")
         dependencies = list(set(dependencies))
         # create dictionary mapping symbols to values and errors
         value_dict = {var._expr: var._value for var in dependencies}
@@ -149,7 +151,6 @@ class Number():
 
         debug_print(f"value_dict: {value_dict}", level="trace")
         debug_print(f"error_dict: {error_dict}", level="trace")
-
         # get the symbolic expression for the propagated error
         error_expr = self._get_symbolic_expression_for_gaussian_error_propagation(expr, dependencies)
 
@@ -170,6 +171,7 @@ class Number():
 
         # convert the result back into a unyt object if unit has been lost due to sympy calculations
         if not isinstance(value, (unyt_quantity, unyt_array)):
+            print(f"The value type is {type(value)}. Need to convert back to unyt object.")
             value = value * dimensionless
 
         # convert error back into unyt object if unit has been lost due to sympy calculations and reshape if necessary
