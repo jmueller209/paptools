@@ -1,5 +1,4 @@
 from copy import error
-import warnings
 import math
 import sympy as sp
 import numpy as np
@@ -58,7 +57,7 @@ class Number():
     
     def round(self) -> None:
         if self._error is None:
-            warnings.warn("Error is None, cannot round value and error.")
+            debug_print("Error is None, cannot round value and error.", level="debug")
             return
         
         #extract float values from unyt quantities for rounding
@@ -162,7 +161,7 @@ class Number():
         error = error_func(*value_dict.values(), *error_dict.values())
         # check if any of the errors <= 0, if so set error to None
         if error is not None and np.any(error <= 0):
-            warnings.warn(f"Computed error is non-positive (error={error}), setting error to None.")
+            debug_print("One of the computed errors is non-positive, setting error to None.", level="debug")
             error = None
 
         # allow complex if one of the dependencies allows complex
@@ -170,7 +169,7 @@ class Number():
 
         # convert the result back into a unyt object if unit has been lost due to sympy calculations
         if not isinstance(value, (unyt_quantity, unyt_array)):
-            debug_print(f"The value type is {type(value)}. Need to convert back to unyt object.", level="warning")
+            debug_print(f"The value type is {type(value)}. Need to convert back to unyt object.", level="debug")
             value = value * dimensionless
 
         # convert error back into unyt object if unit has been lost due to sympy calculations and reshape if necessary
@@ -233,7 +232,7 @@ class Number():
 
     def _round_value_and_error(self, value, error) -> tuple:
         if error == 0 or error is None:
-            warnings.warn("Error is zero or None, cannot round value and error.")
+            debug_print("Error is zero or None, cannot round value and error.", level="debug")
             return value, error
         
         first_digit, decimals = self._get_first_significant_digit_and_rounding_decimals(error)

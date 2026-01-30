@@ -1,6 +1,5 @@
 import sympy as sp
 import numpy as np
-import warnings
 import math
 from decimal import Decimal, ROUND_HALF_UP
 from unyt import unyt_quantity, unyt_array, Unit, dimensionless
@@ -16,7 +15,7 @@ class Array(Number):
 
     def round(self) -> None:
         if self._error is None:
-            warnings.warn("Error is None, cannot round value and error.")
+            debug_print("Error is None, cannot round value and error.", level="debug")
             return
         
         rounded_values = []
