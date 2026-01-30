@@ -143,7 +143,6 @@ class Number():
         for var in vars:
             dependencies.extend(var._dependencies)
         # remove duplicates
-        print(f"Dependencies before removing duplicates: {dependencies}")
         dependencies = list(set(dependencies))
         # create dictionary mapping symbols to values and errors
         value_dict = {var._expr: var._value for var in dependencies}
@@ -171,12 +170,11 @@ class Number():
 
         # convert the result back into a unyt object if unit has been lost due to sympy calculations
         if not isinstance(value, (unyt_quantity, unyt_array)):
-            print(f"The value type is {type(value)}. Need to convert back to unyt object.")
+            debug_print(f"The value type is {type(value)}. Need to convert back to unyt object.", level="warning")
             value = value * dimensionless
 
         # convert error back into unyt object if unit has been lost due to sympy calculations and reshape if necessary
         if error is not None:
-            print(f"Error before conversion: {error}")
             if not isinstance(error, (unyt_quantity, unyt_array)):
                 error = error * dimensionless
             # Make sure the error has the same shape as the value
