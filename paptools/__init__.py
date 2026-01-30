@@ -2,11 +2,8 @@
 from .core.number import Number
 from .core.array import Array
 
-# Public settings
-from .settings import settings, set_option, get_option
-
 # Public debugging tools
-from .debugging import debug_print, debug, timed
+from .debugging import debug_print, timed
 
 # Public functions (math API)
 from .math.functions import *

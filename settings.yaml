@@ -1,0 +1,29 @@
+system:
+  debug_level: info
+  verbose: false
+
+
+plotting:
+  general:
+    style: seaborn-v0_8-pastel
+
+  line_plot:
+    plot:
+      default_marker: x
+      default_line_style: "None"
+      default_color_cycle:
+        - blue
+        - orange
+      error_bars:
+        cap_size: 5
+
+
+    regression:
+      default_marker: None
+      default_line_style: "--"
+      default_color_cycle: 
+        - blue
+        - orange
+
+      use_matching_series_color: true
+  
