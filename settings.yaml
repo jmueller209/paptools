@@ -5,7 +5,7 @@ system:
 
 plotting:
   general:
-    style: seaborn-v0_8-pastel
+    style: seaborn-v0_8-whitegrid
 
   line_plot:
     plot:
