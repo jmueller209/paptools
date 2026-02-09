@@ -89,10 +89,10 @@ class Number():
         return obj
 
     def get_expr(self) -> sp.Symbol:
-        return self._expr
+        return sp.latex(self._expr)
     
     def get_err_expr(self) -> sp.Symbol:
-        return self._err_expr
+        return sp.latex(self._err_expr)
 
     def is_dimensionless(self) -> bool:
         return self._value.units.is_dimensionless
