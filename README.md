@@ -2,16 +2,13 @@
 
 > **Write scientific calculations the way you write them on paper.**
 
-`paptools` is a Python library for laboratory work, scientific calculations and engineering problems. It combines measured values, uncertainties, units and symbolic mathematics into a single object, allowing you to write calculations that stay close to the equations in your notebook while automatically keeping track of everything else.
+`paptools` is a Python library for laboratory work unifying core functionality of `numpy`, `sympy`, and `unyt`. It combines measured values, uncertainties, units and symbolic mathematics into a single object. The library is specifically useful in combination with Jupyter Notebooks. Whether you're calculating the density of a material, the period of a pendulum, or the efficiency of a heat engine, `paptools` takes care of the repetitive work:
 
-Whether you're calculating the density of a material, the period of a pendulum, or the efficiency of a heat engine, `paptools` takes care of the repetitive work:
-
-* 📏 Physical units
-* ± Automatic uncertainty propagation
-* ∑ Symbolic equations
-* 📝 LaTeX generation
-* 🔢 Scientific constants
-* 📊 Common scientific utilities
+* Physical units
+* Automatic uncertainty propagation
+* Symbolic equations
+* LaTeX generation
+* Scientific constants
 
 ---
 
@@ -35,8 +32,7 @@ Output
 ```text
 ρ = (4.863 ± 0.005) g/cm³
 ```
-
-That's already useful.
+Note that the `round()` method automatically rounds the error according to the convention where we keep the first significant digit if it is greater than or equal to 3 and keep the first two significant digits if the first significant digit is a 1 or 2. The value gets than rounded to the same accuracy.
 
 But there is much more hidden inside the result.
 
